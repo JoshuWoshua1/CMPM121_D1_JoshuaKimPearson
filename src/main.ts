@@ -8,7 +8,7 @@ let burgers: number = 0;
 let clickPower: number = 1;
 
 let ketchupCost: number = 5;
-let ketchupPower: number = 1;
+const ketchupPower: number = 1;
 
 document.body.innerHTML = `
   <p>Example image asset: <img src="${exampleIconUrl}" class="icon" /></p>
