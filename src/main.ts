@@ -4,8 +4,12 @@ import "./style.css";
 
 //Counter variable for button
 let burgers: number = 0;
-const burgersPerSecond: number = 0;
+const burgersPerSecond: number = 111;
 let clickPower: number = 1;
+
+//variables for Animation
+let lastTime: number = 0;
+const MsPerSecond: number = 1000;
 
 //variables for upgrades
 let ketchupCost: number = 10;
@@ -28,8 +32,8 @@ const ketchupCostDisplay = document.getElementById("ketchupCostDisplay")!;
 const clickPowerDisplay = document.getElementById("clickPowerDisplay")!;
 //const burgersPerSecondDisplay = document.getElementById("burgersPerSecondDisplay",)!;
 
-const updateCounterDisplay = () => {
-  counterElement.textContent = burgers.toString();
+const updateCounterDisplay = () => { //function to make it easier to update current burgers
+  counterElement.textContent = Math.floor(burgers).toString(); //changed to allow fractional growth without making it ugly
 };
 
 button.addEventListener("click", () => {
@@ -49,10 +53,18 @@ ketchupButton.addEventListener("click", () => {
   }
 });
 
-// Increment the counter by 1 every 1000 milliseconds (1 second)
-setInterval(() => {
-  burgers += burgersPerSecond;
+//step 4 implementation
+function gameLoop(timestamp: DOMHighResTimeStamp) {
+  if (lastTime === 0) {
+    lastTime = timestamp;
+  }
 
-  // Update the display to reflect the change
+  const deltaTime_ms: number = timestamp - lastTime; // calculate time since last frame
+  const growthThisFrame: number = burgersPerSecond *
+    (deltaTime_ms / MsPerSecond); // calculate growth for frame
+  burgers += growthThisFrame;
   updateCounterDisplay();
-}, 1000); // 1000 ms = 1 second
+  lastTime = timestamp;
+  self.requestAnimationFrame(gameLoop);
+}
+self.requestAnimationFrame(gameLoop);
