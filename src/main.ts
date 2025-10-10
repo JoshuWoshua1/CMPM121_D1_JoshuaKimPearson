@@ -4,7 +4,7 @@ import "./style.css";
 
 //Counter variable for button
 let burgers: number = 0;
-let burgersPerSecond: number = 0;
+const burgersPerSecond: number = 0;
 let clickPower: number = 1;
 
 //variables for upgrades
@@ -26,9 +26,7 @@ const counterElement = document.getElementById("counter")!;
 const ketchupButton = document.getElementById("ketchupButton")!;
 const ketchupCostDisplay = document.getElementById("ketchupCostDisplay")!;
 const clickPowerDisplay = document.getElementById("clickPowerDisplay")!;
-const burgersPerSecondDisplay = document.getElementById(
-  "burgersPerSecondDisplay",
-)!;
+//const burgersPerSecondDisplay = document.getElementById("burgersPerSecondDisplay",)!;
 
 const updateCounterDisplay = () => {
   counterElement.textContent = burgers.toString();
