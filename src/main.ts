@@ -6,148 +6,179 @@ import lettuce from "./lettuceSS.png";
 
 import "./style.css";
 
-//misc variables
-const costMult = 1.15; // added for step 7, though i already had cost multiplying in since step 3.
+// Step 9 restructed everything for data-driven design
 
-//Counter variable for button
+// Item structure
+interface Item {
+  id: string;
+  name: string;
+  image: string;
+  type: "BPS" | "ClickPower";
+  baseRate: number;
+  cost: number;
+  count: number;
+}
+
+// Array containing all upgrade items
+const availableItems: Item[] = [
+  // BPS Upgrades
+  {
+    id: "fries",
+    name: "Fries",
+    image: fries,
+    type: "BPS",
+    baseRate: 0.1,
+    cost: 10,
+    count: 0,
+  },
+  {
+    id: "cheese",
+    name: "Cheese",
+    image: cheese,
+    type: "BPS",
+    baseRate: 2,
+    cost: 100,
+    count: 0,
+  },
+  {
+    id: "lettuce",
+    name: "Lettuce",
+    image: lettuce,
+    type: "BPS",
+    baseRate: 50,
+    cost: 1000,
+    count: 0,
+  },
+  // Click Power Upgrades
+  {
+    id: "ketchup",
+    name: "Ketchup",
+    image: ketchup,
+    type: "ClickPower",
+    baseRate: 1,
+    cost: 100,
+    count: 0,
+  },
+];
+
+//misc variables
+const costMult: number = 1.15;
+
 let burgers: number = 0;
 let burgersPerSecond: number = 0;
 let clickPower: number = 1;
 
-//variables for Animation
+// variables for Animation
 let lastTime: number = 0;
 const MsPerSecond: number = 1000;
 
-//variables for BPS upgrades
-let friesCount: number = 0;
-let friesCost: number = 10;
-const friesPower: number = 0.1;
-let cheeseCount: number = 0;
-let cheeseCost: number = 100;
-const cheesePower: number = 2;
-let lettuceCount: number = 0;
-let lettuceCost: number = 1000;
-const lettucePower: number = 50;
+// automatically create items from array
+let itemHtml = "";
+availableItems.forEach((item) => {
+  // Determine the rate descriptor based on type
+  const rateDescriptor = item.type === "BPS" ? "BPS" : "click power";
 
-//variables for click power upgrades
-let ketchupCount: number = 0;
-let ketchupCost: number = 100;
-const ketchupPower: number = 1;
+  itemHtml += `
+    <p>${item.name} +${item.baseRate} ${rateDescriptor}
+        <br>Cost: <span id="${item.id}CostDisplay">${item.cost}</span> burgers
+        <br>Owned: <span id="${item.id}CountDisplay">${item.count}</span>
+    </p>
+    <button id="${item.id}Button"><img src="${item.image}" class="icon" /></button>
+    `;
+});
 
 document.body.innerHTML = `
-  <!-- Counters & burger button -->
-  <p>click power: <span id="clickPowerDisplay">${clickPower}</span></p>
-  <p>BPS: <span id="BPSDisplay">${burgersPerSecond}</span></p>
-  <h2>burgers: <span id="counter">0</span></h2>
-  <button id="burgButton"><img src="${burger}" class="bigbutton" /></button>
-  <!-- Auto burger Upgrades -->
-  <p>Fries +${friesPower} BPS <br>Cost: <span id="friesCostDisplay">${friesCost}</span> burgers <br>Owned: <span id="friesCountDisplay">${friesCount}</span></p>
-  <button id="friesButton"><img src="${fries}" class="icon" /></button>
-  <p>Cheese +${cheesePower} BPS <br>Cost: <span id="cheeseCostDisplay">${cheeseCost}</span> burgers <br>Owned: <span id="cheeseCountDisplay">${cheeseCount}</span></p>
-  <button id="cheeseButton"><img src="${cheese}" class="icon" /></button>
-  <p>Lettuce +${lettucePower} BPS <br>Cost: <span id="lettuceCostDisplay">${lettuceCost}</span> burgers <br>Owned: <span id="lettuceCountDisplay">${lettuceCount}</span></p>
-  <button id="lettuceButton"><img src="${lettuce}" class="icon" /></button>
-  <!-- Click Power Increase Upgrades -->
-  <p>Ketchup +${ketchupPower} click power <br>Cost: <span id="ketchupCostDisplay">${ketchupCost}</span> burgers <br>Owned: <span id="ketchupCountDisplay">${ketchupCount}</span></p>
-  <button id="ketchupButton"><img src="${ketchup}" class="icon" /></button>
-  `;
+    <!-- Counters & burger button -->
+    <p>click power: <span id="clickPowerDisplay">${
+  clickPower.toFixed(1)
+}</span></p>
+    <p>BPS: <span id="BPSDisplay">${burgersPerSecond.toFixed(1)}</span></p>
+    <h2>burgers: <span id="counter">0</span></h2>
+    <button id="burgButton"><img src="${burger}" class="bigbutton" /></button>
+    
+    <!-- Dynamically generated Upgrades -->
+    ${itemHtml}
+`;
 
 // Add click handler
 const button = document.getElementById("burgButton")!;
 const counterElement = document.getElementById("counter")!;
-const friesCountDisplay = document.getElementById("friesCountDisplay")!;
-const friesButton = document.getElementById("friesButton")!;
-const friesCostDisplay = document.getElementById("friesCostDisplay")!;
-const ketchupCountDisplay = document.getElementById("ketchupCountDisplay")!;
-const ketchupButton = document.getElementById("ketchupButton")!;
-const ketchupCostDisplay = document.getElementById("ketchupCostDisplay")!;
 const clickPowerDisplay = document.getElementById("clickPowerDisplay")!;
 const BPSDisplay = document.getElementById("BPSDisplay")!;
-const cheeseCountDisplay = document.getElementById("cheeseCountDisplay")!;
-const cheeseButton = document.getElementById("cheeseButton")!;
-const cheeseCostDisplay = document.getElementById("cheeseCostDisplay")!;
-const lettuceCountDisplay = document.getElementById("lettuceCountDisplay")!;
-const lettuceButton = document.getElementById("lettuceButton")!;
-const lettuceCostDisplay = document.getElementById("lettuceCostDisplay")!;
 
-const updateCounterDisplay = () => { //function to make it easier to update current burgers
-  counterElement.textContent = Math.floor(burgers).toString(); //changed to allow fractional growth without making it ugly
+// Function to update the main burger count display
+const updateCounterDisplay = () => {
+  counterElement.textContent = Math.floor(burgers).toString();
 };
 
+// Function to update the item-specific displays after a purchase
+const updateItemDisplay = (item: Item) => {
+  document.getElementById(`${item.id}CountDisplay`)!.textContent = item.count
+    .toString();
+  document.getElementById(`${item.id}CostDisplay`)!.textContent = item.cost
+    .toString();
+};
+
+// Function to update the global BPS/Click Power displays
+const updateGlobalDisplays = () => {
+  BPSDisplay.textContent = burgersPerSecond.toFixed(1);
+  clickPowerDisplay.textContent = clickPower.toFixed(1);
+};
+
+// Purchase function for all items
+function handlePurchase(itemId: string) {
+  // Find the item in array
+  const item = availableItems.find((i) => i.id === itemId);
+
+  if (!item) return;
+
+  if (burgers >= item.cost) {
+    burgers -= item.cost;
+
+    item.count += 1;
+    item.cost = Math.floor(item.cost * costMult);
+
+    if (item.type === "BPS") {
+      burgersPerSecond += item.baseRate;
+    } else if (item.type === "ClickPower") {
+      clickPower += item.baseRate;
+    }
+
+    updateCounterDisplay();
+    updateItemDisplay(item);
+    updateGlobalDisplays();
+  }
+}
+
+// Burger button
 button.addEventListener("click", () => {
   burgers += clickPower;
   updateCounterDisplay();
 });
 
-friesButton.addEventListener("click", () => { // new button for step 5, increases BPS instead of click Power
-  if (burgers >= friesCost) {
-    burgers -= friesCost;
-    burgersPerSecond += friesPower;
-    friesCost = Math.floor(friesCost * costMult);
-    friesCount += 1;
-
-    updateCounterDisplay();
-    friesCountDisplay.textContent = friesCount.toString();
-    friesCostDisplay.textContent = friesCost.toString();
-    BPSDisplay.textContent = burgersPerSecond.toFixed(1);
+// Item Buttons
+availableItems.forEach((item) => {
+  const itemButton = document.getElementById(`${item.id}Button`);
+  if (itemButton) {
+    itemButton.addEventListener("click", () => {
+      handlePurchase(item.id);
+    });
   }
 });
 
-cheeseButton.addEventListener("click", () => { // first new button for step 6, increases BPS instead of click Power
-  if (burgers >= cheeseCost) {
-    burgers -= cheeseCost;
-    burgersPerSecond += cheesePower;
-    cheeseCost = Math.floor(cheeseCost * costMult);
-    cheeseCount += 1;
-
-    updateCounterDisplay();
-    cheeseCountDisplay.textContent = cheeseCount.toString();
-    cheeseCostDisplay.textContent = cheeseCost.toString();
-    BPSDisplay.textContent = burgersPerSecond.toFixed(1);
-  }
-});
-
-lettuceButton.addEventListener("click", () => { // second (and final) new button for step 6, increases BPS instead of click Power
-  if (burgers >= lettuceCost) {
-    burgers -= lettuceCost;
-    burgersPerSecond += lettucePower;
-    lettuceCost = Math.floor(lettuceCost * costMult);
-    lettuceCount += 1;
-
-    updateCounterDisplay();
-    lettuceCountDisplay.textContent = lettuceCount.toString();
-    lettuceCostDisplay.textContent = lettuceCost.toString();
-    BPSDisplay.textContent = burgersPerSecond.toFixed(1);
-  }
-});
-
-// old button *added during section assignment, I had misinterpreted what "good change" meant and me & my partner added a button to eachother's games
-ketchupButton.addEventListener("click", () => {
-  if (burgers >= ketchupCost) {
-    burgers -= ketchupCost;
-    clickPower += ketchupPower;
-    ketchupCost = Math.floor(ketchupCost * costMult);
-    ketchupCount += 1;
-
-    updateCounterDisplay();
-    ketchupCountDisplay.textContent = ketchupCount.toString();
-    ketchupCostDisplay.textContent = ketchupCost.toString();
-    clickPowerDisplay.textContent = clickPower.toFixed(1);
-  }
-});
-
-//step 4 implementation
+// Game Loop
 function gameLoop(timestamp: DOMHighResTimeStamp) {
   if (lastTime === 0) {
     lastTime = timestamp;
   }
 
-  const deltaTime_ms: number = timestamp - lastTime; // calculate time since last frame
+  const deltaTime_ms: number = timestamp - lastTime;
   const growthThisFrame: number = burgersPerSecond *
-    (deltaTime_ms / MsPerSecond); // calculate growth for frame
+    (deltaTime_ms / MsPerSecond);
   burgers += growthThisFrame;
   updateCounterDisplay();
   lastTime = timestamp;
   self.requestAnimationFrame(gameLoop);
 }
+
 self.requestAnimationFrame(gameLoop);
