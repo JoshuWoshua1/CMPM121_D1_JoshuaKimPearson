@@ -3,3 +3,8 @@
   vertical-align: top;
   border: 1px solid salmon;
 }
+
+.bigbutton {
+  width: 128px;
+  vertical-align: top;
+}

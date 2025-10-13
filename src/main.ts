@@ -1,3 +1,4 @@
+import burger from "./burgerSS.png";
 import cheese from "./cheeseSS.png";
 import fries from "./friesSS.png";
 import ketchup from "./ketchupSS.png";
@@ -6,7 +7,7 @@ import lettuce from "./lettuceSS.png";
 import "./style.css";
 
 //misc variables
-const costMult = 1.15;  // added for step 7, though i already had cost multiplying in since step 3.
+const costMult = 1.15; // added for step 7, though i already had cost multiplying in since step 3.
 
 //Counter variable for button
 let burgers: number = 0;
@@ -38,7 +39,7 @@ document.body.innerHTML = `
   <p>click power: <span id="clickPowerDisplay">${clickPower}</span></p>
   <p>BPS: <span id="BPSDisplay">${burgersPerSecond}</span></p>
   <h2>burgers: <span id="counter">0</span></h2>
-  <button id="burgButton">🍔</button>
+  <button id="burgButton"><img src="${burger}" class="bigbutton" /></button>
   <!-- Auto burger Upgrades -->
   <p>Fries +${friesPower} BPS <br>Cost: <span id="friesCostDisplay">${friesCost}</span> burgers <br>Owned: <span id="friesCountDisplay">${friesCount}</span></p>
   <button id="friesButton"><img src="${fries}" class="icon" /></button>
