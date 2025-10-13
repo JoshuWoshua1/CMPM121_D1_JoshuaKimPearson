@@ -3,6 +3,8 @@ import cheese from "./cheeseSS.png";
 import fries from "./friesSS.png";
 import ketchup from "./ketchupSS.png";
 import lettuce from "./lettuceSS.png";
+import mayo from "./mayoSS.png";
+import onion from "./onionSS.png";
 
 import "./style.css";
 
@@ -17,6 +19,7 @@ interface Item {
   baseRate: number;
   cost: number;
   count: number;
+  description: string;
 }
 
 // Array containing all upgrade items
@@ -30,6 +33,7 @@ const availableItems: Item[] = [
     baseRate: 0.1,
     cost: 10,
     count: 0,
+    description: "Some french fries always go well with a burger!",
   },
   {
     id: "cheese",
@@ -39,6 +43,7 @@ const availableItems: Item[] = [
     baseRate: 2,
     cost: 100,
     count: 0,
+    description: "Mmmm chezburger mmm chezburger mmmmmmmm chezzzburgerrrr",
   },
   {
     id: "lettuce",
@@ -48,6 +53,18 @@ const availableItems: Item[] = [
     baseRate: 50,
     cost: 1000,
     count: 0,
+    description: "Make sure to eat your greens! adds some cruch to the burger!",
+  },
+  {
+    id: "onion",
+    name: "Onion",
+    image: onion,
+    type: "BPS",
+    baseRate: 200,
+    cost: 10000,
+    count: 0,
+    description:
+      "Personally I don't like these, but they make the burgers sell even faster!",
   },
   // Click Power Upgrades
   {
@@ -58,6 +75,17 @@ const availableItems: Item[] = [
     baseRate: 1,
     cost: 100,
     count: 0,
+    description: "Great on the burger, great for some fries too!",
+  },
+  {
+    id: "mayo",
+    name: "Mayo",
+    image: mayo,
+    type: "ClickPower",
+    baseRate: 5,
+    cost: 1000,
+    count: 0,
+    description: "Yummy yummy in my tummy!",
   },
 ];
 
@@ -83,8 +111,8 @@ availableItems.forEach((item) => {
         <br>Cost: <span id="${item.id}CostDisplay">${item.cost}</span> burgers
         <br>Owned: <span id="${item.id}CountDisplay">${item.count}</span>
     </p>
-    <button id="${item.id}Button"><img src="${item.image}" class="icon" /></button>
-    `;
+    <button id="${item.id}Button" title="${item.description}"><img src="${item.image}" class="icon" /></button>
+    `;
 });
 
 document.body.innerHTML = `
