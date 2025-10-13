@@ -5,6 +5,9 @@ import lettuce from "./lettuceSS.png";
 
 import "./style.css";
 
+//misc variables
+const costMult = 1.15;  // added for step 7, though i already had cost multiplying in since step 3.
+
 //Counter variable for button
 let burgers: number = 0;
 let burgersPerSecond: number = 0;
@@ -79,7 +82,7 @@ friesButton.addEventListener("click", () => { // new button for step 5, increase
   if (burgers >= friesCost) {
     burgers -= friesCost;
     burgersPerSecond += friesPower;
-    friesCost = Math.floor(friesCost * 1.5);
+    friesCost = Math.floor(friesCost * costMult);
     friesCount += 1;
 
     updateCounterDisplay();
@@ -93,7 +96,7 @@ cheeseButton.addEventListener("click", () => { // first new button for step 6, i
   if (burgers >= cheeseCost) {
     burgers -= cheeseCost;
     burgersPerSecond += cheesePower;
-    cheeseCost = Math.floor(cheeseCost * 1.5);
+    cheeseCost = Math.floor(cheeseCost * costMult);
     cheeseCount += 1;
 
     updateCounterDisplay();
@@ -107,7 +110,7 @@ lettuceButton.addEventListener("click", () => { // second (and final) new button
   if (burgers >= lettuceCost) {
     burgers -= lettuceCost;
     burgersPerSecond += lettucePower;
-    lettuceCost = Math.floor(lettuceCost * 1.5);
+    lettuceCost = Math.floor(lettuceCost * costMult);
     lettuceCount += 1;
 
     updateCounterDisplay();
@@ -122,7 +125,7 @@ ketchupButton.addEventListener("click", () => {
   if (burgers >= ketchupCost) {
     burgers -= ketchupCost;
     clickPower += ketchupPower;
-    ketchupCost = Math.floor(ketchupCost * 1.5);
+    ketchupCost = Math.floor(ketchupCost * costMult);
     ketchupCount += 1;
 
     updateCounterDisplay();
