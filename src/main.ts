@@ -8,14 +8,27 @@ import onion from "./onionSS.png";
 
 import "./style.css";
 
-// Step 9 restructed everything for data-driven design
+// ------------- Variables --------------------------
+
+//misc variables
+const costMultiplier: number = 1.15;
+
+let points: number = 0;
+let pointsPerSecond: number = 0;
+let pointsPerClick: number = 1;
+
+// variables for Animation
+let lastTime: number = 0;
+const MsPerSecond: number = 1000;
+
+// ------------- Upgrades --------------------------
 
 // Item structure
 interface Item {
   id: string;
   name: string;
   image: string;
-  type: "BPS" | "ClickPower";
+  type: "pointsPerSecond" | "pointsPerClick";
   baseRate: number;
   cost: number;
   count: number;
@@ -29,7 +42,7 @@ const availableItems: Item[] = [
     id: "fries",
     name: "Fries",
     image: fries,
-    type: "BPS",
+    type: "pointsPerSecond",
     baseRate: 0.1,
     cost: 10,
     count: 0,
@@ -39,7 +52,7 @@ const availableItems: Item[] = [
     id: "cheese",
     name: "Cheese",
     image: cheese,
-    type: "BPS",
+    type: "pointsPerSecond",
     baseRate: 2,
     cost: 100,
     count: 0,
@@ -49,7 +62,7 @@ const availableItems: Item[] = [
     id: "lettuce",
     name: "Lettuce",
     image: lettuce,
-    type: "BPS",
+    type: "pointsPerSecond",
     baseRate: 50,
     cost: 1000,
     count: 0,
@@ -59,7 +72,7 @@ const availableItems: Item[] = [
     id: "onion",
     name: "Onion",
     image: onion,
-    type: "BPS",
+    type: "pointsPerSecond",
     baseRate: 200,
     cost: 10000,
     count: 0,
@@ -71,7 +84,7 @@ const availableItems: Item[] = [
     id: "ketchup",
     name: "Ketchup",
     image: ketchup,
-    type: "ClickPower",
+    type: "pointsPerClick",
     baseRate: 1,
     cost: 100,
     count: 0,
@@ -81,7 +94,7 @@ const availableItems: Item[] = [
     id: "mayo",
     name: "Mayo",
     image: mayo,
-    type: "ClickPower",
+    type: "pointsPerClick",
     baseRate: 5,
     cost: 1000,
     count: 0,
@@ -89,22 +102,11 @@ const availableItems: Item[] = [
   },
 ];
 
-//misc variables
-const costMult: number = 1.15;
-
-let burgers: number = 0;
-let burgersPerSecond: number = 0;
-let clickPower: number = 1;
-
-// variables for Animation
-let lastTime: number = 0;
-const MsPerSecond: number = 1000;
-
 // automatically create items from array
 let itemHtml = "";
 availableItems.forEach((item) => {
   // Determine the rate descriptor based on type
-  const rateDescriptor = item.type === "BPS" ? "BPS" : "click power";
+  const rateDescriptor = item.type === "pointsPerSecond" ? "pointsPerSecond" : "pointsPerClick";
 
   itemHtml += `
     <p>${item.name} +${item.baseRate} ${rateDescriptor}
@@ -115,12 +117,14 @@ availableItems.forEach((item) => {
     `;
 });
 
+// ------------- HTML --------------------------
+
 document.body.innerHTML = `
     <!-- Counters & burger button -->
     <p>click power: <span id="clickPowerDisplay">${
-  clickPower.toFixed(1)
+  pointsPerClick.toFixed(1)
 }</span></p>
-    <p>BPS: <span id="BPSDisplay">${burgersPerSecond.toFixed(1)}</span></p>
+    <p>BPS: <span id="BPSDisplay">${pointsPerSecond.toFixed(1)}</span></p>
     <h2>burgers: <span id="counter">0</span></h2>
     <button id="burgButton"><img src="${burger}" class="bigbutton" /></button>
     
@@ -134,9 +138,11 @@ const counterElement = document.getElementById("counter")!;
 const clickPowerDisplay = document.getElementById("clickPowerDisplay")!;
 const BPSDisplay = document.getElementById("BPSDisplay")!;
 
+// ------------- Functions --------------------------
+
 // Function to update the main burger count display
 const updateCounterDisplay = () => {
-  counterElement.textContent = Math.floor(burgers).toString();
+  counterElement.textContent = Math.floor(points).toString();
 };
 
 // Function to update the item-specific displays after a purchase
@@ -149,8 +155,8 @@ const updateItemDisplay = (item: Item) => {
 
 // Function to update the global BPS/Click Power displays
 const updateGlobalDisplays = () => {
-  BPSDisplay.textContent = burgersPerSecond.toFixed(1);
-  clickPowerDisplay.textContent = clickPower.toFixed(1);
+  BPSDisplay.textContent = pointsPerSecond.toFixed(1);
+  clickPowerDisplay.textContent = pointsPerClick.toFixed(1);
 };
 
 // Purchase function for all items
@@ -160,16 +166,16 @@ function handlePurchase(itemId: string) {
 
   if (!item) return;
 
-  if (burgers >= item.cost) {
-    burgers -= item.cost;
+  if (points >= item.cost) {
+    points -= item.cost;
 
     item.count += 1;
-    item.cost = Math.floor(item.cost * costMult);
+    item.cost = Math.floor(item.cost * costMultiplier);
 
-    if (item.type === "BPS") {
-      burgersPerSecond += item.baseRate;
-    } else if (item.type === "ClickPower") {
-      clickPower += item.baseRate;
+    if (item.type === "pointsPerSecond") {
+      pointsPerSecond += item.baseRate;
+    } else if (item.type === "pointsPerClick") {
+      pointsPerClick += item.baseRate;
     }
 
     updateCounterDisplay();
@@ -178,9 +184,11 @@ function handlePurchase(itemId: string) {
   }
 }
 
+// ------------- Eventlisteners --------------------------
+
 // Burger button
 button.addEventListener("click", () => {
-  burgers += clickPower;
+  points += pointsPerClick;
   updateCounterDisplay();
 });
 
@@ -194,16 +202,16 @@ availableItems.forEach((item) => {
   }
 });
 
-// Game Loop
+//  ------------- Game Loop --------------------------
 function gameLoop(timestamp: DOMHighResTimeStamp) {
   if (lastTime === 0) {
     lastTime = timestamp;
   }
 
   const deltaTime_ms: number = timestamp - lastTime;
-  const growthThisFrame: number = burgersPerSecond *
+  const growthThisFrame: number = pointsPerSecond *
     (deltaTime_ms / MsPerSecond);
-  burgers += growthThisFrame;
+  points += growthThisFrame;
   updateCounterDisplay();
   lastTime = timestamp;
   self.requestAnimationFrame(gameLoop);
