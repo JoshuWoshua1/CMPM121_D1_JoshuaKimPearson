@@ -8,3 +8,232 @@
   width: 128px;
   vertical-align: top;
 }
+
+body {
+  margin: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #f3c7c5;
+  color: #fff;
+  overflow: hidden;
+}
+
+.game-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  background-color: #723737;
+  position: relative;
+}
+
+.burger-icon {
+  font-size: 2em;
+  vertical-align: middle;
+  margin: 0 10px;
+}
+
+.game-title {
+  font-size: 3em;
+  margin-bottom: 20px;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+}
+
+.total-display {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #ffd700;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.click-power-display {
+  font-size: 1.2em;
+  margin-top: 20px;
+  color: #ffb648;
+}
+
+.main-click-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease-out;
+}
+
+.main-click-button:active {
+  transform: scale(0.95);
+}
+
+.main-button-image {
+  width: 250px;
+  height: auto;
+  filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5)); /* Adds a shadow */
+}
+
+.right-panel {
+  width: 400px;
+  background-color: #9e4545;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.upgrades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upgrade-card {
+  display: flex;
+  align-items: center;
+  background-color: #662b24;
+  border: 1px solid #330808;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  color: #e0e0e0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.upgrade-card:hover {
+  background-color: #833127;
+  transform: translateY(-2px);
+}
+
+.upgrade-card:active {
+  background-color: #c43939;
+  transform: translateY(0);
+}
+
+.upgrade-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  border-radius: 50%;
+  background-color: #ff6a6a;
+  flex-shrink: 0;
+}
+
+.upgrade-icon img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.upgrade-details {
+  flex-grow: 1;
+}
+
+.upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+
+.upgrade-name {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #ffd000;
+}
+
+.upgrade-count {
+  font-size: 1em;
+  font-weight: bold;
+  color: #ffc062;
+}
+
+.upgrade-stats {
+  font-size: 0.9em;
+  color: #ffe1b3;
+  margin-bottom: 5px;
+}
+
+.upgrade-description {
+  font-size: 0.8em;
+  color: #886f52;
+  line-height: 1.4;
+}
+
+.icon {
+  display: none;
+}
+
+.bigbutton {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    flex-direction: column;
+  }
+
+  .left-panel {
+    height: auto;
+    padding-bottom: 10px;
+  }
+
+  .right-panel {
+    width: 100%;
+    height: 60vh;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .game-title {
+    font-size: 2em;
+  }
+
+  .total-display {
+    font-size: 1.8em;
+  }
+
+  .main-button-image {
+    width: 180px;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes floatUpAndFade {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -50px); /* Move up 50px */
+  }
+}
+
+.floating-gain {
+  position: absolute;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  z-index: 1000;
+
+  animation: floatUpAndFade 1s ease-out forwards;
+}

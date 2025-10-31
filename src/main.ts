@@ -102,36 +102,31 @@ const availableItems: Item[] = [
   },
 ];
 
-// automatically create items from array
-let itemHtml = "";
-availableItems.forEach((item) => {
-  // Determine the rate descriptor based on type
-  const rateDescriptor = item.type === "pointsPerSecond"
-    ? "pointsPerSecond"
-    : "pointsPerClick";
-
-  itemHtml += `
-    <p>${item.name} +${item.baseRate} ${rateDescriptor}
-        <br>Cost: <span id="${item.id}CostDisplay">${item.cost}</span> burgers
-        <br>Owned: <span id="${item.id}CountDisplay">${item.count}</span>
-    </p>
-    <button id="${item.id}Button" title="${item.description}"><img src="${item.image}" class="icon" /></button>
-    `;
-});
+// automatically create items from array using map and join
+const itemHtml = availableItems.map(renderItem).join("");
 
 // ------------- HTML --------------------------
-
+// edited this section to mirror the same design as https://github.com/fractalizes/cmpm-121-f25-d1
 document.body.innerHTML = `
-    <!-- Counters & burger button -->
-    <p>click power: <span id="clickPowerDisplay">${
+<div class="game-container">
+  <div class="left-panel">
+    <h1 class="game-title">
+      <span class="burger-icon">🍔</span> Big Belly Burger <span class="burger-icon">🍔</span>
+    </h1>
+    <p class="total-display">Total: $<span id="counter">0</span> ($<span id="BPSDisplay">0.0</span>/sec)</p>
+    <button id="burgButton" class="main-click-button">
+      <img src="${burger}" alt="Burger" class="main-button-image" />
+    </button>
+    <p class="click-power-display">Click Power: +$<span id="clickPowerDisplay">${
   pointsPerClick.toFixed(1)
 }</span></p>
-    <p>BPS: <span id="BPSDisplay">${pointsPerSecond.toFixed(1)}</span></p>
-    <h2>burgers: <span id="counter">0</span></h2>
-    <button id="burgButton"><img src="${burger}" class="bigbutton" /></button>
-    
-    <!-- Dynamically generated Upgrades -->
-    ${itemHtml}
+  </div>
+  <div class="right-panel">
+    <div class="upgrades-list">
+      ${itemHtml}
+    </div>
+  </div>
+</div>
 `;
 
 // Add click handler
@@ -141,6 +136,59 @@ const clickPowerDisplay = document.getElementById("clickPowerDisplay")!;
 const BPSDisplay = document.getElementById("BPSDisplay")!;
 
 // ------------- Functions --------------------------
+
+// Function to generate the HTML for a single item
+function renderItem(item: Item): string {
+  const rateDescriptor = item.type === "pointsPerSecond" ? "/sec" : "/click";
+  const nextRate = item.baseRate;
+
+  const initialTitle = generateItemTitle(item);
+
+  return `
+  <button id="${item.id}Button" class="upgrade-card" title="${initialTitle}">
+    <div class="upgrade-icon">
+      <img src="${item.image}" alt="${item.name}" />
+    </div>
+    <div class="upgrade-details">
+      <div class="upgrade-header">
+        <span class="upgrade-name">${item.name}</span>
+        <span class="upgrade-count">x<span id="${item.id}CountDisplay">${item.count}</span></span>
+      </div>
+        <div class="upgrade-stats">
+          [$<span id="${item.id}CostDisplay">${item.cost}</span> ~ +$${
+    nextRate.toFixed(1)
+  }${rateDescriptor}]
+        </div>
+        <div class="upgrade-description">${item.description}</div>
+    </div>
+  </button>
+  `;
+}
+
+function generateItemTitle(item: Item): string {
+  const rateDescriptor = item.type === "pointsPerSecond" ? "BPS" : "PPC";
+  const totalRate = item.baseRate * item.count;
+
+  return `Total Bonus: +${totalRate.toFixed(1)} ${rateDescriptor}`;
+}
+
+// Helper function for floating numbers on click inspired from https://github.com/inyoo403/D1.a
+function floatingGain(amount: number, x: number, y: number) {
+  const textEl = document.createElement("div");
+  textEl.className = "floating-gain";
+  textEl.textContent = `+${amount.toFixed(0)}`; // Show whole number gain
+
+  const container = document.getElementById("burgButton")!.parentElement!;
+  const rect = container.getBoundingClientRect();
+
+  textEl.style.left = `${x - rect.left}px`;
+  textEl.style.top = `${y - rect.top}px`;
+
+  container.appendChild(textEl);
+
+  // Clean up the element after its CSS animation finishes
+  textEl.addEventListener("animationend", () => textEl.remove());
+}
 
 // Function to update the main burger count display
 const updateCounterDisplay = () => {
@@ -153,6 +201,12 @@ const updateItemDisplay = (item: Item) => {
     .toString();
   document.getElementById(`${item.id}CostDisplay`)!.textContent = item.cost
     .toString();
+  const itemButton = document.getElementById(
+    `${item.id}Button`,
+  ) as HTMLButtonElement;
+  if (itemButton) {
+    itemButton.title = generateItemTitle(item);
+  }
 };
 
 // Function to update the global BPS/Click Power displays
@@ -189,9 +243,10 @@ function handlePurchase(itemId: string) {
 // ------------- Eventlisteners --------------------------
 
 // Burger button
-button.addEventListener("click", () => {
+button.addEventListener("click", (e) => {
   points += pointsPerClick;
   updateCounterDisplay();
+  floatingGain(pointsPerClick, e.clientX, e.clientY);
 });
 
 // Item Buttons
