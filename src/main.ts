@@ -106,7 +106,9 @@ const availableItems: Item[] = [
 let itemHtml = "";
 availableItems.forEach((item) => {
   // Determine the rate descriptor based on type
-  const rateDescriptor = item.type === "pointsPerSecond" ? "pointsPerSecond" : "pointsPerClick";
+  const rateDescriptor = item.type === "pointsPerSecond"
+    ? "pointsPerSecond"
+    : "pointsPerClick";
 
   itemHtml += `
     <p>${item.name} +${item.baseRate} ${rateDescriptor}
